@@ -6,4 +6,9 @@ public class Oaza {
 		this.po = po;
 		this.co = co;
 	}
+	
+	public String vypis() {
+		String vypis = "["+xo+","+yo+"], oaza cislo: "+co;
+		return vypis;
+	}
 }

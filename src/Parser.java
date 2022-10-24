@@ -5,57 +5,68 @@ import java.util.ArrayList;
 
 public class Parser {
 	
+	static char v1 = '\uD83D'; //kody emojis
+	static char v2 =  '\uDC2A';
+	static char p1 = '\uD83C';
+	static char p2 = '\uDFDC';
 	
-	public static ArrayList<String> parse(File file) throws FileNotFoundException {
-		Scanner sc = new Scanner(file);
-		int pocetSkladu = 0;
-		int pocetOaz = 0;
-		int pocetCest = 0;
-		int pocetDVelblouda = 0;
-		int pocetPozadavku = 0;
-		int[] sklady = new int[pocetSkladu * 5];
-		int[] oazy = new int[pocetOaz * 2];
-		int[] cesty = new int[pocetCest * 2];
-		String[] velbloudi = new String[pocetDVelblouda * 8];
-		int[] pozadavky = new int[ pocetPozadavku * 4]; 
+	
+	public static ArrayList<Character> parse(File file) throws FileNotFoundException {
+		//nacitani vstupniho souboru do pole Stringu
+		ArrayList<String> radky = new ArrayList<String>();
+		ArrayList<Character> znaky = new ArrayList<Character>();
+		Scanner s = new Scanner(file);
+		
+		while(s.hasNextLine()) {
+			radky.add(s.nextLine());
+		}
+		s.close();
+		
+		char[] temp;
+		for(int i = 0; i < radky.size(); i++) {
+			temp = radky.get(i).toCharArray();
+			znaky.add(' ');
+			for(int j = 0; j < temp.length; j++) {
+				znaky.add(temp[j]);
+			}
+		}
+		
+		
 
 		
 		
-		//predelat na arraylist
-		//zjistovani velikosti vstupniho souboru
-		int count = 0;
-		while (sc.hasNext()) {
-			count++;
-			sc.next();
-		}
-		sc.close();
+		ArrayList<Character> parsed = new ArrayList<Character>();
 		
-		//nacitani vstupniho souboru do pole Stringu
-		String[] info = new String[count];
-		Scanner s = new Scanner(file);
-		for (int i = 0; i < count; i++) {
-			info[i] = s.next();
-		}
-		
-		ArrayList<String> parsed = new ArrayList<String>();
-		//odstranovani komentaru
-		for(int i = 0; i < info.length; i++) {
-			if(info[i].equals("🐪")) {
-				while (!(info[i].equals("🏜") && i < info.length)) {
-					i++;
-				} continue;
-			} 
-			//System.out.println(info[i]);
-			parsed.add(info[i]);
-		}
+		parsed = odstranKomentare(znaky);
 		
 //		for(int i = 0; i < parsed.size(); i++) {
-//			System.out.println(parsed.get(i));
-//		}
+//		System.out.print(parsed.get(i));
+//	}
 		
 		return parsed;
 		
 		
 		}
+	public static ArrayList<Character> odstranKomentare(ArrayList<Character> list) {
+		for(int i = 0; i < list.size(); i++) {
+			if(list.get(i) == v1 && list.get(i + 1) == v2) {
+				do {
+					list.remove(i);
+					odstranKomentare(list);
+				} while ((list.get(i) != p1 && list.get(i) != p2));
+			}
+		}
+		return odstranPouste(list);
+	}
+	
+	public static ArrayList<Character> odstranPouste(ArrayList<Character> list) {
+		ArrayList<Character> bezPousti = new ArrayList<Character>();
+		for(int i = 0; i < list.size(); i++) {
+			if(list.get(i) != p1 && list.get(i) != p2) {
+				bezPousti.add(list.get(i));
+			}
+		}
+		return bezPousti;
+	}
 	
 }

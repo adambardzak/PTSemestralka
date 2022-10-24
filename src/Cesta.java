@@ -2,10 +2,10 @@ import java.util.ArrayList;
 
 public class Cesta {
 	ArrayList<Integer> seznam;
-	int cesty;
-	public Cesta(ArrayList<Integer> seznam, int cesty ) {
+	int pocetCest;
+	public Cesta(ArrayList<Integer> seznam, int pocetCest) {
 		this.seznam = seznam;
-		this.cesty = cesty;
+		this.pocetCest = pocetCest;
 		
 	}
 }
