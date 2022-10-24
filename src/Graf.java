@@ -3,34 +3,34 @@
  * implementace neorientovaneho grafu, reprezentovan matici sousednosti
  */
 public class Graf {
-	private boolean maticeSousednosti[][];
+	private int maticeSousednosti[][];
 	private int pocetVrcholu;
 	
 	public Graf(int pocetVrcholu) {
 		this.pocetVrcholu = pocetVrcholu;
-		maticeSousednosti = new boolean[pocetVrcholu][pocetVrcholu];
+		maticeSousednosti = new int[pocetVrcholu][pocetVrcholu];
 	}
 	
 	//prida hranu mezi vrcholy i a j
-	public void pridejHranu(int i, int j) {
-		if(i >= 0 && i < pocetVrcholu && j > 0 && j < pocetVrcholu) {
-			maticeSousednosti[i - 1][j - 1] = true;
-			maticeSousednosti[j - 1][i - 1] = true;
-		} else System.out.println("Snazis se pridat hranu a nektery z vrcholu neexistuje");
+	public void pridejHranu(int i, int j, int vzdalenost) {
+		if(i >= 0 && i <= pocetVrcholu && j > 0 && j <= pocetVrcholu) {
+			maticeSousednosti[i - 1][j - 1] = vzdalenost;
+			maticeSousednosti[j - 1][i - 1] = vzdalenost;
+		} else System.out.println("Chyba: Snazis se pridat hranu a nektery z vrcholu neexistuje!");
 	}
 	
 	//odstrani hranu
 	public void odstranHranu(int i, int j) {
-		if(i >= 0 && i < pocetVrcholu && j > 0 && j < pocetVrcholu) {
-			maticeSousednosti[i - 1][j - 1] = false;
-			maticeSousednosti[j - 1][i - 1] = false;
+		if(i >= 0 && i <= pocetVrcholu && j > 0 && j <= pocetVrcholu) {
+			maticeSousednosti[i - 1][j - 1] = 0;
+			maticeSousednosti[j - 1][i - 1] = 0;
 		}
 	}
 	
 	//zjisti, zda je hrana mezi vrcholy i a j
 	public boolean jeHranaMezi(int i, int j) {
 		if(i >= 0 && i < pocetVrcholu && j > 0 && j < pocetVrcholu) {
-			return maticeSousednosti[i - 1][j - 1];
+			return maticeSousednosti[i - 1][j - 1] > 0;
 		} 
 		else return false;
 	}
@@ -46,7 +46,7 @@ public class Graf {
 		for(int i = 0; i < pocetVrcholu; i++) {
 			System.out.print(i + 1 + " ");
 			for(int j = 0; j < pocetVrcholu; j++) {
-				if(maticeSousednosti[i][j] == true) System.out.print("1 ");
+				if(maticeSousednosti[i][j] != 0) System.out.print(maticeSousednosti[i][j]+" ");
 				else System.out.print("0 ");
 			}
 			System.out.println();

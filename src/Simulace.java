@@ -4,21 +4,21 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 public class Simulace {
+	public static int pocetOaz, pocetSkladu, pocetCest, pocetVrcholu;
 	public static void main(String args[]) throws FileNotFoundException {
 		File file = new File("/Users/adambardzak/Desktop/tutorial.txt");
 		ArrayList<Character> listDat = new ArrayList<Character>(); 
 		
-		//vytvorEntity(toStringList(Parser.parse(file)));
+		vytvorEntity(toStringList(Parser.parse(file)));
 		
-		Graf graf = new Graf(6);
-		graf.pridejHranu(1, 4);
-		graf.pridejHranu(1, 3);
-		graf.pridejHranu(4, 1);
-		graf.pridejHranu(1, 5);
-		graf.pridejHranu(6, 3);
+		Graf graf = new Graf(5);
+		graf.pridejHranu(1, 5, 28);
+		graf.pridejHranu(2, 4, 2);
+		graf.pridejHranu(1, 3, 65);
+		graf.pridejHranu(4, 5, 1);
 		graf.vypisMatici();
-		
-		
+		graf.odstranHranu(1, 5);
+		graf.vypisMatici();
 		
 	}
 	
@@ -28,7 +28,7 @@ public class Simulace {
 		
 		
 		//--------------------------SKLADY--------------------------
-		int pocetSkladu = Integer.parseInt(list.get(pointer));
+		pocetSkladu = Integer.parseInt(list.get(pointer));
 		pointer++;
 		ArrayList<Sklad> sklady = new ArrayList<Sklad>();
 		for(int i = 1; i < pocetSkladu + 1; i++) {
@@ -43,7 +43,7 @@ public class Simulace {
 		
 		
 		//--------------------------OAZY--------------------------
-		int pocetOaz = Integer.parseInt(list.get(pointer));
+		pocetOaz = Integer.parseInt(list.get(pointer));
 		pointer++;
 		ArrayList<Oaza> oazy = new ArrayList<Oaza>();
 		System.out.println("Oazy: ");
@@ -54,6 +54,13 @@ public class Simulace {
 			pointer = pointer + 2;
 		}
 		System.out.println("pointer se nachazi na pozici: "+pointer);
+		
+		 
+		//--------------------------CESTY--------------------------
+		pocetVrcholu = pocetOaz + pocetSkladu;
+		pocetCest = Integer.parseInt(list.get(pointer));
+		pointer++;
+		//tohle je spatne
 		
 	}
 	/*
