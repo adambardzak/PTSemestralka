@@ -8,7 +8,17 @@ public class Simulace {
 		File file = new File("/Users/adambardzak/Desktop/tutorial.txt");
 		ArrayList<Character> listDat = new ArrayList<Character>(); 
 		
-		vytvorEntity(toStringList(Parser.parse(file)));
+		//vytvorEntity(toStringList(Parser.parse(file)));
+		
+		Graf graf = new Graf(6);
+		graf.pridejHranu(1, 4);
+		graf.pridejHranu(1, 3);
+		graf.pridejHranu(4, 1);
+		graf.pridejHranu(1, 5);
+		graf.pridejHranu(6, 3);
+		graf.vypisMatici();
+		
+		
 		
 	}
 	

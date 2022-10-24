@@ -12,7 +12,7 @@ public class Sklad {
 	}
 	
 	public String vypis() {
-		String vypis = "["+xs+","+ys+"], pocet kosu: "+ks+", doba doplneni: "+ts+", doba nalozeni: "+tn+", cislo skladu: "+cs;
+		String vypis = "souradnice: ["+xs+","+ys+"], pocet kosu: "+ks+", doba doplneni: "+ts+", doba nalozeni: "+tn+", sklad cislo: "+cs;
 		return vypis;
 	}
 }

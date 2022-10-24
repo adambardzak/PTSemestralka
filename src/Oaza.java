@@ -8,7 +8,7 @@ public class Oaza {
 	}
 	
 	public String vypis() {
-		String vypis = "["+xo+","+yo+"], oaza cislo: "+co;
+		String vypis = "souradnice: ["+xo+","+yo+"], oaza cislo: "+co;
 		return vypis;
 	}
 }
