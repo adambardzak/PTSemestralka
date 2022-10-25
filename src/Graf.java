@@ -1,18 +1,18 @@
 
 /*
- * implementace neorientovaneho grafu, reprezentovan matici sousednosti
+ * implementace neorientovaneho ohodnoceneho grafu, reprezentovan matici sousednosti
  */
 public class Graf {
-	private int maticeSousednosti[][];
+	private double maticeSousednosti[][];
 	private int pocetVrcholu;
 	
 	public Graf(int pocetVrcholu) {
 		this.pocetVrcholu = pocetVrcholu;
-		maticeSousednosti = new int[pocetVrcholu][pocetVrcholu];
+		maticeSousednosti = new double[pocetVrcholu][pocetVrcholu];
 	}
 	
 	//prida hranu mezi vrcholy i a j
-	public void pridejHranu(int i, int j, int vzdalenost) {
+	public void pridejHranu(int i, int j, double vzdalenost) {
 		if(i >= 0 && i <= pocetVrcholu && j > 0 && j <= pocetVrcholu) {
 			maticeSousednosti[i - 1][j - 1] = vzdalenost;
 			maticeSousednosti[j - 1][i - 1] = vzdalenost;

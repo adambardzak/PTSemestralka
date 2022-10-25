@@ -53,7 +53,7 @@ public class Parser {
 				do {
 					list.remove(i);
 					odstranKomentare(list);
-				} while ((list.get(i) != p1 && list.get(i) != p2));
+				} while ((list.get(i) != p1 && list.get(i + 1) != p2));
 			}
 		}
 		return odstranPouste(list);
