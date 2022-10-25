@@ -1,3 +1,4 @@
+package pt_semestralka;
 
 public class Velbloud {
 	//trida stavy 

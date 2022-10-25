@@ -1,3 +1,4 @@
+package pt_semestralka;
 
 /*
  * implementace neorientovaneho ohodnoceneho grafu, reprezentovan matici sousednosti

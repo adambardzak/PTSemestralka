@@ -1,3 +1,4 @@
+package pt_semestralka;
 public class Pozadavek implements Comparable<Pozadavek>{
 	int tz, op, kp, tp, poradi;
 	
