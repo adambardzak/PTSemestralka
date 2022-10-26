@@ -2,6 +2,7 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Simulace {
 	//seznam vsech existujicich velbloudu
@@ -13,11 +14,12 @@ public class Simulace {
 	static ArrayList<Oaza> oazy = new ArrayList<Oaza>();
 	public static int pocetOaz, pocetSkladu, pocetCest, pocetVrcholu, pocetVelbloudu, pocetPozadavku;
 	public static void main(String args[]) throws FileNotFoundException {
-		File file = new File("/Users/adambardzak/Desktop/tutorial.txt");
+		Random random = new Random();
+		File file = new File("./tutorial.txt");
 		vytvorEntity(toStringList(Parser.parse(file)));
 		//cyklus co bude spoustet nekolik simulaci
-		//spustSimulaci();
-		sklady.get(0).generujVelbloudy();
+		spustSimulaci(random);
+		sklady.get(0).generujVelbloudy(random);
 	}
 
 	//	public void nastavCas(int kolikcasu) {
@@ -34,12 +36,15 @@ public class Simulace {
 	 * budem muset jeste pridat volbu ze ktereho skladu bude pozadavek vyrizen
 	 * 
 	 */
-	public static void spustSimulaci() {
+	public static void spustSimulaci(Random random) {
+		
+		
+		
 		ArrayList<Pozadavek> pozadavkyTed = new ArrayList<Pozadavek>();
 		// v tomhle whliu se vezme jeden velbloud a zada se mu jeden pozadavek
 		while(pozadavky.size() > 0) {
 			for(int i = 0; i < pozadavky.size(); i++) {
-				if(pozadavky.get(i).tp == casSimulace) pozadavkyTed.add(pozadavky.get(i));
+				if(pozadavky.get(i).tp <= casSimulace) pozadavkyTed.add(pozadavky.get(i)); // musi se zpracovat i pozadavky starsi, ktere tam visi
 			}
 			while(pozadavkyTed.size() > 0) {
 				
@@ -52,16 +57,14 @@ public class Simulace {
 			//tady bude hledani nejblizsiho skladu z te oazy sklad = pozadavek.oaza.getNejblizsiSklad()
 			if(sklady.get(0).velbloudi.size() > 0) { //pokud jsou ve skladu nejaci velbloudi, vem toho prvniho
 				for(int i = 0; i < sklady.get(0).velbloudi.size(); i++) {
-					if((sklady.get(0).velbloudi.get(i).zvladneCestu(null))) {
-						velbloud.vemPozadavek(pozadavek);
-					} else {
-						//napij se
+					if((sklady.get(0).velbloudi.get(i).zvladneNaklad(pozadavek) && sklady.get(0).velbloudi.get(i).zvladneCestu(pozadavek,casSimulace,oazy))) {
+						velbloud.vemPozadavek(pozadavek,casSimulace);
 					}
 				}
 			} else { //pokud ne, tak !ZJISTI, JESTLI VUBEC MUZES VYGENEROVAT NEJAKYHO CO TO ZVLADNE! a vygeneruj JE a pak vem toho prvniho, protoze ten urcite bude napity
-				sklady.get(0).generujVelbloudy();
+				sklady.get(0).generujVelbloudy(random);
 				velbloud = sklady.get(0).velbloudi.get(0);
-				velbloud.vemPozadavek(pozadavek);
+				velbloud.vemPozadavek(pozadavek,casSimulace);
 			}
 			
 			

@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+import java.util.Random;
 
 public class Velbloud {
 	
@@ -14,16 +16,20 @@ public class Velbloud {
 	DruhVelblouda druh;
 	Pozadavek pozadavek;
 	boolean piti = true;
+	double maxNaJednoNapiti;
+	double napityNaDelku;
 	
 	
 	public Velbloud(Stav stav, Stav dalsiStav, int casPosledniZmenyStavu, int casDalsiZmenyStavu, Sklad materskySklad,
-			DruhVelblouda druh) {
+			DruhVelblouda druh, Random random) {
 		this.stav = stav;
 		this.dalsiStav = dalsiStav;
 		this.casDalsiZmenyStavu = casDalsiZmenyStavu;
 		this.casPosledniZmenyStavu = casPosledniZmenyStavu;
 		this.materskySklad = materskySklad;
 		this.druh = druh;
+		this.maxNaJednoNapiti = (this.druh.dmin + this.druh.dmax)/2 + Math.pow(((this.druh.dmax + this.druh.dmin)/4) , 2) * random.nextGaussian(); //stredni hodnota = dmin + dmax)/2, rozptyl = smerodatna odchylka na druhou, smerodatna odchylka =(dmax-dmin)/4
+		this.napityNaDelku = maxNaJednoNapiti;
 	}
 	
 	public void vypis() {
@@ -31,21 +37,38 @@ public class Velbloud {
 	}
 	
 	//tohle doplnit!
-	public boolean zvladneCestu(Double vzdalenost) {
-		if(jeNapity()) return true;
-		else return false;
+	public boolean zvladneCestu(Pozadavek pozadavek, int casSimulace, ArrayList<Oaza> oazy) {
+		Cesta cesta = new Cesta(this.materskySklad, oazy.get(pozadavek.op));
+		if(napityNaDelku >= cesta.vzdalenost) return true;
+		else {
+			pij(casSimulace);
+			return false;
+		}
 	}
 	
 	//dodelat!
 	public boolean jeNapity() {
 		return piti;
 	}
+	
+	public void pij(int casSimulace) {
+		this.stav = Stav.PIJE;
+		this.dalsiStav = Stav.CEKA;
+		this.casDalsiZmenyStavu = casSimulace + this.druh.td;
+		
+	}
+	
+	public boolean zvladneNaklad(Pozadavek predavanyPozadavek) {
+		if(predavanyPozadavek.kp <= this.druh.kd) return true;
+		else return false;
+	}
 
 	
-	public void vemPozadavek(Pozadavek predavanyPozadavek) {
+	public void vemPozadavek(Pozadavek predavanyPozadavek, int casSimulace) {
 		this.pozadavek = predavanyPozadavek;
-		this.stav = dalsiStav;
+		this.stav = Stav.NAKLADA;
 		this.dalsiStav = Stav.JDE;
+		this.casDalsiZmenyStavu = casSimulace + (predavanyPozadavek.kp * this.materskySklad.tn); //pocet kosu z pozadavku krat doba nalozeni jednoho kose
 		//vypis
 	}
 	

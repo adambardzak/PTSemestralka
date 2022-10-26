@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Random;
 
 
 public class Sklad {
@@ -36,7 +37,7 @@ public class Sklad {
 		}
 	}
 	
-	public void generujVelbloudy() {
+	public void generujVelbloudy(Random random) {
 		double nejmensiZastoupeni = 2.0; //protoze to bude vzdycky desetinne cislo
 		
 		/*
@@ -71,7 +72,7 @@ public class Sklad {
 			int pocetVelbloudu = (int) (pocetGenerovanych.get(i) / delitel);
 			for(int j = 0; j < pocetVelbloudu; j++) {
 				Velbloud velbloud = new Velbloud(Velbloud.Stav.CEKA, Velbloud.Stav.NAKLADA, Simulace.casSimulace,
-						Simulace.casSimulace + tn, this, Simulace.druhyVelbloudu.get(i));
+						Simulace.casSimulace + tn, this, Simulace.druhyVelbloudu.get(i), random);
 				velbloud.vypis();
 				this.velbloudi.add(velbloud);
 			}
