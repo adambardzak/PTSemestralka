@@ -1,9 +1,9 @@
-
+/*
+ * konstruktor druhu velblouda
+ */
 public class DruhVelblouda {
-	int x, y;
-	int dmin,dmax,td,kd;
-	int pocetKosu = 0;
-	double vmin,vmax, pd;
+	int dmin, dmax, td, kd;
+	double vmin, vmax, pd;
 	String jmeno;
 	public DruhVelblouda(String jmeno,double vmin, double vmax, int dmin,int dmax,int td,int kd,double pd) {
 		this.jmeno = jmeno;
@@ -20,15 +20,4 @@ public class DruhVelblouda {
 		System.out.println("Druh: "+jmeno+", min rychlost: "+vmin+", max rychlost: "+vmax+", min vzdalenost: "+dmin+", max vzdalenost: "+dmax);
 	}
 	
-	public int[] getSouradnice() {
-		int[] pole = new int[2];
-		pole[0] = this.x;
-		pole[1] = this.y;
-		return pole;		
-	}
-	
-	public void setSouradnice(int a, int b) {
-		this.x = a;
-		this.y = b;
-	}
 }

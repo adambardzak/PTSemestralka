@@ -16,12 +16,13 @@ public class Simulace {
 		File file = new File("/Users/adambardzak/Desktop/tutorial.txt");
 		vytvorEntity(toStringList(Parser.parse(file)));
 		//cyklus co bude spoustet nekolik simulaci
-		spustSimulaci();
+		//spustSimulaci();
+		sklady.get(0).generujVelbloudy();
 	}
-	
-//	public void nastavCas(int kolikcasu) {
-//		this.simulacniCas = simulacniCas + kolikcasu;
-//	}
+
+	//	public void nastavCas(int kolikcasu) {
+	//		this.simulacniCas = simulacniCas + kolikcasu;
+	//	}
 	/*
 	 * @param treba kolik vygenerovanych velbloudu, nebo treba generovat kdyz budou velbloudi moc douho pryc
 	 * , bylo by vhodne generovat alespon jednoho s nejnizsim zastoupenim
@@ -34,41 +35,68 @@ public class Simulace {
 	 * 
 	 */
 	public static void spustSimulaci() {
-		ArrayList<Pozadavek> serazenePozadavky = new ArrayList<Pozadavek>();
+		ArrayList<Pozadavek> pozadavkyTed = new ArrayList<Pozadavek>();
+		// v tomhle whliu se vezme jeden velbloud a zada se mu jeden pozadavek
 		while(pozadavky.size() > 0) {
-			//beru ty pozadavky co maji aktualni cas simulace
 			for(int i = 0; i < pozadavky.size(); i++) {
-				if(pozadavky.get(i).tp == casSimulace) serazenePozadavky.add(pozadavky.get(i));
+				if(pozadavky.get(i).tp == casSimulace) pozadavkyTed.add(pozadavky.get(i));
 			}
+			while(pozadavkyTed.size() > 0) {
+				
+			Pozadavek pozadavek = null;
+			Velbloud velbloud = null;
+			Sklad sklad = null;
+			//beru ty pozadavky co maji aktualni cas simulace
+	
 			//sem chci dat serazeni pozadavku aby se bral jako prvni ten s nejnizsim casem na splneni
+			//tady bude hledani nejblizsiho skladu z te oazy sklad = pozadavek.oaza.getNejblizsiSklad()
+			if(sklady.get(0).velbloudi.size() > 0) { //pokud jsou ve skladu nejaci velbloudi, vem toho prvniho
+				for(int i = 0; i < sklady.get(0).velbloudi.size(); i++) {
+					if((sklady.get(0).velbloudi.get(i).zvladneCestu(null))) {
+						velbloud.vemPozadavek(pozadavek);
+					} else {
+						//napij se
+					}
+				}
+			} else { //pokud ne, tak !ZJISTI, JESTLI VUBEC MUZES VYGENEROVAT NEJAKYHO CO TO ZVLADNE! a vygeneruj JE a pak vem toho prvniho, protoze ten urcite bude napity
+				sklady.get(0).generujVelbloudy();
+				velbloud = sklady.get(0).velbloudi.get(0);
+				velbloud.vemPozadavek(pozadavek);
+			}
+			
+			
+			//nakonec kontrola co se bude se vsema velbloudama dit v dalsim case
+			
+			}
+			casSimulace++;
 			
 		}
-		
-		
-		//vzit pozadavky a ty s aktualnim casem simulace
-		//nejaky cyklus pres vsechny sklady a v nem cyklus pres vsechny pozadavky pro kazdy sklad a  kdy se vzdy na konci zvysi cas
-		//az se projdou vsechny sklady tak zvysit cas o 1
-		//metoda posun cas
+
 		//brat pozadavky dokud nejaky budou v listu
 		//nekolik simulaci
-		//ma kdo obslouzit pozadavky? pripadne vygenerovat
 		//na konci kazdeho simulacniho cyklu velbloudy seradit podle napitosti
-		
+
 		/* 
 		 * projdu vsechny sklady a dokud tam budou pozadavky tak si je budu zpracovavat podle toho jak je budu mit
 		 * serazeny ve fronte, pokud nebudu mit velbloudy tak si je vygeneruju podle toho jaky druh generovani jsem 
 		 * zrovna zvolil, na pozadavek vzdy idealne davam napiteho velblouda, pokud ho nemam, necham nejakeho napit (zas je
 		 * roztridit podle nejvyssi mozny vzdalenosti) 
 		 */
-		
+
 	}
-	
+
+	//	public void generujKose() {
+	//		for(int i = 0; i < sklady.size(); i++) {
+	//			sklady.get(i).pocetKosu = sklady.get(i).pocetKosu + sklady.get(i).ks;
+	//		}
+	//	}
+
+
 	//metoda co bude kopirovat pocatecni stav entit, abychom nemuseli porad nacitat soubor dokola
 
 	//prebira list s informacemi o entitach
 	public static void vytvorEntity(ArrayList<String> list) {
 		int pointer = 0; //pomocne ukazovatko, ukazuje kde se zrovna nachazime v listu
-
 
 		//--------------------------SKLADY--------------------------
 		pocetSkladu = Integer.parseInt(list.get(pointer));
@@ -84,7 +112,6 @@ public class Simulace {
 		System.out.println(sklady.get(0).vypis());
 		System.out.println("pointer se nachazi na pozici: "+pointer);
 
-
 		//--------------------------OAZY--------------------------
 		pocetOaz = Integer.parseInt(list.get(pointer));
 		pointer++;
@@ -96,7 +123,6 @@ public class Simulace {
 			pointer = pointer + 2;
 		}
 		System.out.println("pointer se nachazi na pozici: "+pointer);
-
 
 		//--------------------------CESTY--------------------------
 		pocetVrcholu = pocetOaz + pocetSkladu;
@@ -113,6 +139,7 @@ public class Simulace {
 		Cesty neco = new Cesty(cesty);
 		neco.vypis();
 		System.out.println("pointer se nachazi na pozici: "+pointer);
+		
 		//--------------------------VELBLOUDI--------------------------
 		pocetVelbloudu = Integer.parseInt(list.get(pointer));
 		pointer++;
@@ -124,6 +151,7 @@ public class Simulace {
 			pointer = pointer + 8;
 		}
 		System.out.println("pointer se nachazi na pozici: "+pointer);
+		
 		//--------------------------POZADAVKY--------------------------
 		pocetPozadavku = Integer.parseInt(list.get(pointer));
 		pointer++;
