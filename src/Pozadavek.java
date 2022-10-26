@@ -1,5 +1,6 @@
 public class Pozadavek implements Comparable<Pozadavek>{
 	int tz, op, kp, tp, poradi;
+	boolean vyrizeny = false;
 	
 	public Pozadavek(int tz, int op,int kp,int tp, int poradi) {
 		this.tz = tz; //cas prichodu pozadavku

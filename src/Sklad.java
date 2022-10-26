@@ -7,6 +7,8 @@ public class Sklad {
 	ArrayList<Velbloud> velbloudi = new ArrayList<Velbloud>();
 	//nejakje parametr jak dlouho uz jsou velbloudi ptyc
 	int pocetKosu = ks;
+	private static int pocet = 0;
+	public final int INDEX = ++pocet;
 	public Sklad(int xs,int ys,int ks,int ts,int tn,int cs) {
 		this.xs = xs;
 		this.ys = ys;
@@ -37,7 +39,7 @@ public class Sklad {
 		}
 	}
 	
-	public void generujVelbloudy(Random random) {
+	public void generujVelbloudy(ArrayList<Oaza> oazy) {
 		double nejmensiZastoupeni = 2.0; //protoze to bude vzdycky desetinne cislo
 		
 		/*
@@ -66,14 +68,12 @@ public class Sklad {
 		
 		//je funkcni zatim jen pro  2 druhy, musime dodelat
 		double delitel = nejmensiSpolecnyDelitel(pocetGenerovanych.get(0), pocetGenerovanych.get(1));
-		System.out.println(delitel);
+		
 		
 		for(int i = 0; i < pocetGenerovanych.size(); i++) {
 			int pocetVelbloudu = (int) (pocetGenerovanych.get(i) / delitel);
 			for(int j = 0; j < pocetVelbloudu; j++) {
-				Velbloud velbloud = new Velbloud(Velbloud.Stav.CEKA, Velbloud.Stav.NAKLADA, Simulace.casSimulace,
-						Simulace.casSimulace + tn, this, Simulace.druhyVelbloudu.get(i), random);
-				velbloud.vypis();
+				Velbloud velbloud = new Velbloud(this, Simulace.druhyVelbloudu.get(i), oazy);
 				this.velbloudi.add(velbloud);
 			}
 		}

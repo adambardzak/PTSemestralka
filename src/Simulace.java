@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Random;
 
+
 public class Simulace {
 	//seznam vsech existujicich velbloudu
 	static int casSimulace = 0;
@@ -14,12 +15,12 @@ public class Simulace {
 	static ArrayList<Oaza> oazy = new ArrayList<Oaza>();
 	public static int pocetOaz, pocetSkladu, pocetCest, pocetVrcholu, pocetVelbloudu, pocetPozadavku;
 	public static void main(String args[]) throws FileNotFoundException {
-		Random random = new Random();
+		//Random random = new Random(System.currentTimeMillis());
 		File file = new File("./tutorial.txt");
 		vytvorEntity(toStringList(Parser.parse(file)));
 		//cyklus co bude spoustet nekolik simulaci
-		spustSimulaci(random);
-		sklady.get(0).generujVelbloudy(random);
+		spustSimulaci();
+		//sklady.get(0).generujVelbloudy(random);
 	}
 
 	//	public void nastavCas(int kolikcasu) {
@@ -36,45 +37,80 @@ public class Simulace {
 	 * budem muset jeste pridat volbu ze ktereho skladu bude pozadavek vyrizen
 	 * 
 	 */
-	public static void spustSimulaci(Random random) {
-		
-		
-		
-		ArrayList<Pozadavek> pozadavkyTed = new ArrayList<Pozadavek>();
+	public static void spustSimulaci() {
+
+
+
 		// v tomhle whliu se vezme jeden velbloud a zada se mu jeden pozadavek
-		while(pozadavky.size() > 0) {
+		int pocetVyrizenychKosu = 0;
+		int pocetObslouzenychPozadavku = 0;
+		boolean simulaceBezi = true;
+		while(pozadavky.size() > 0 && simulaceBezi) {			
+			ArrayList<Pozadavek> pozadavkyTed = new ArrayList<Pozadavek>();
 			for(int i = 0; i < pozadavky.size(); i++) {
-				if(pozadavky.get(i).tp <= casSimulace) pozadavkyTed.add(pozadavky.get(i)); // musi se zpracovat i pozadavky starsi, ktere tam visi
+				if(pozadavky.get(i).tz <= casSimulace && pozadavky.get(i).vyrizeny == false) pozadavkyTed.add(pozadavky.get(i)); // musi se zpracovat i pozadavky starsi, ktere tam visi
 			}
-			while(pozadavkyTed.size() > 0) {
-				
-			Pozadavek pozadavek = null;
-			Velbloud velbloud = null;
-			Sklad sklad = null;
-			//beru ty pozadavky co maji aktualni cas simulace
-	
-			//sem chci dat serazeni pozadavku aby se bral jako prvni ten s nejnizsim casem na splneni
-			//tady bude hledani nejblizsiho skladu z te oazy sklad = pozadavek.oaza.getNejblizsiSklad()
-			if(sklady.get(0).velbloudi.size() > 0) { //pokud jsou ve skladu nejaci velbloudi, vem toho prvniho
-				for(int i = 0; i < sklady.get(0).velbloudi.size(); i++) {
-					if((sklady.get(0).velbloudi.get(i).zvladneNaklad(pozadavek) && sklady.get(0).velbloudi.get(i).zvladneCestu(pozadavek,casSimulace,oazy))) {
-						velbloud.vemPozadavek(pozadavek,casSimulace);
+			int indexPozadavku = 0;
+			while(pozadavkyTed.size() > indexPozadavku && simulaceBezi) {
+
+//				Pozadavek pozadavek = null;
+//				Velbloud velbloud = null;
+//				Sklad sklad = null;
+				//beru ty pozadavky co maji aktualni cas simulace
+
+				//sem chci dat serazeni pozadavku aby se bral jako prvni ten s nejnizsim casem na splneni
+				//tady bude hledani nejblizsiho skladu z te oazy sklad = pozadavek.oaza.getNejblizsiSklad()
+				if(sklady.get(0).velbloudi.size() == 0) {
+					sklady.get(0).generujVelbloudy(oazy);
+				}
+				if(sklady.get(0).velbloudi.size() > 0) { //pokud jsou ve skladu nejaci velbloudi, vem toho prvniho
+					for(int i = 0; i < sklady.get(0).velbloudi.size(); i++) {
+						if((sklady.get(0).velbloudi.get(i).zvladneNaklad(pozadavkyTed.get(indexPozadavku)) &&
+								sklady.get(0).velbloudi.get(i).zvladneCestu(pozadavkyTed.get(indexPozadavku),casSimulace)) && 
+								sklady.get(0).velbloudi.get(i).stav == Velbloud.Stav.CEKA) {
+							sklady.get(0).velbloudi.get(i).nakladej(pozadavkyTed.get(indexPozadavku),casSimulace);
+							pozadavkyTed.get(indexPozadavku).vyrizeny = true;
+							
+						}
 					}
 				}
-			} else { //pokud ne, tak !ZJISTI, JESTLI VUBEC MUZES VYGENEROVAT NEJAKYHO CO TO ZVLADNE! a vygeneruj JE a pak vem toho prvniho, protoze ten urcite bude napity
-				sklady.get(0).generujVelbloudy(random);
-				velbloud = sklady.get(0).velbloudi.get(0);
-				velbloud.vemPozadavek(pozadavek,casSimulace);
+				//nakonec kontrola co se bude se vsema velbloudama dit v dalsim case
+				for(int i = 0; i < sklady.get(0).velbloudi.size(); i++) {
+					sklady.get(0).velbloudi.get(i).zkontrolujSvujStav(casSimulace);
+				}
+				indexPozadavku++;
 			}
-			
-			
-			//nakonec kontrola co se bude se vsema velbloudama dit v dalsim case
-			
+			for(int i = 0; i < pozadavkyTed.size(); i++) {
+				if(casSimulace > (pozadavkyTed.get(i).tp + pozadavkyTed.get(i).tz)) {
+					System.out.println("Cas: "+casSimulace+", Oaza: "+pozadavkyTed.get(i).op+", Vsichni vymreli, Harpagon zkrachoval, Konec simulace\n"
+							+ "");
+					simulaceBezi = false;
+					break;
+				}
 			}
-			casSimulace++;
-			
-		}
+			boolean jeTamNevyrizeny = false;
+			for(int i = 0; i < pozadavky.size(); i++) {
+				if(pozadavky.get(i).vyrizeny == false) {
+					jeTamNevyrizeny = true;
+					break;
+				}
+			}
+			if(jeTamNevyrizeny) {
+				casSimulace++;
+			} else {
+				System.out.println("Simulace skoncila uspesne");
+				break;
+			}
 
+		}
+		for(int i = 0; i < pozadavky.size(); i++) {
+			if(pozadavky.get(i).vyrizeny == true) {
+				pocetObslouzenychPozadavku++;
+				pocetVyrizenychKosu = pocetVyrizenychKosu + pozadavky.get(i).kp;
+			}
+		}
+		
+		System.out.println("Pocet vyrizenych pozadavku: "+pocetObslouzenychPozadavku+", pocet donesenych kosu: "+pocetVyrizenychKosu);
 		//brat pozadavky dokud nejaky budou v listu
 		//nekolik simulaci
 		//na konci kazdeho simulacniho cyklu velbloudy seradit podle napitosti
@@ -142,7 +178,7 @@ public class Simulace {
 		Cesty neco = new Cesty(cesty);
 		neco.vypis();
 		System.out.println("pointer se nachazi na pozici: "+pointer);
-		
+
 		//--------------------------VELBLOUDI--------------------------
 		pocetVelbloudu = Integer.parseInt(list.get(pointer));
 		pointer++;
@@ -154,7 +190,7 @@ public class Simulace {
 			pointer = pointer + 8;
 		}
 		System.out.println("pointer se nachazi na pozici: "+pointer);
-		
+
 		//--------------------------POZADAVKY--------------------------
 		pocetPozadavku = Integer.parseInt(list.get(pointer));
 		pointer++;
