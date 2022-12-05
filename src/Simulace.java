@@ -2,30 +2,42 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Random;
-
+import java.util.List;
 
 public class Simulace {
-	//seznam vsech existujicich velbloudu
-	static int casSimulace = 0;
-	static ArrayList<Pozadavek> pozadavky = new ArrayList<Pozadavek>();
-	static ArrayList<Sklad> sklady = new ArrayList<Sklad>();
-	static ArrayList<DruhVelblouda> druhyVelbloudu = new ArrayList<DruhVelblouda>();
-	static ArrayList<Cesta> cesty = new ArrayList<Cesta>();
-	static ArrayList<Oaza> oazy = new ArrayList<Oaza>();
+	public static final double ZMENA_CASU = 0.001;
+	public static final double EPSILON = 0.01;
+	static double casSimulace = 0;
+	static List<Pozadavek> pozadavky = new ArrayList<Pozadavek>();
+	static List<Sklad> sklady = new ArrayList<Sklad>();
+	static List<DruhVelblouda> druhyVelbloudu = new ArrayList<DruhVelblouda>();
+	static List<Cesta> cesty = new ArrayList<Cesta>();
+	static List<Oaza> oazy = new ArrayList<Oaza>();
 	public static int pocetOaz, pocetSkladu, pocetCest, pocetVrcholu, pocetVelbloudu, pocetPozadavku;
+	static EntityGraphMap entityGraphMap;
 	public static void main(String args[]) throws FileNotFoundException {
-		//Random random = new Random(System.currentTimeMillis());
-		File file = new File("./tutorial.txt");
-		vytvorEntity(toStringList(Parser.parse(file)));
-		//cyklus co bude spoustet nekolik simulaci
-		spustSimulaci();
-		//sklady.get(0).generujVelbloudy(random);
-	}
+		//File file = new File("./src/parser.txt");
+		//File file = new File("./src/tutorial.txt");
+		//File file = new File("./src/weird_small.txt");
+		//File file = new File("./src/weird_medium.txt");
+		//File file = new File("./src/weird_large.txt");
+		//File file = new File("./src/centre_small.txt");
+		File file = new File("./src/dense_small.txt");
+		ArrayList<Character> parsedFile = Parser.parse(file);
+		if (parsedFile.size() > 0) {
+			vytvorEntity(toStringList(parsedFile));		
+			
+			//Dijkstra.test();	
+			//entityGraphMap.getShortedPathTest();	
+			//System.out.println(entityGraphMap);
+			
+			spustSimulaci();
+		} else {
+			System.out.println("Soubor "+ file.getName() +" se neda naparsovat");
+		}
+		
+	}	
 
-	//	public void nastavCas(int kolikcasu) {
-	//		this.simulacniCas = simulacniCas + kolikcasu;
-	//	}
 	/*
 	 * @param treba kolik vygenerovanych velbloudu, nebo treba generovat kdyz budou velbloudi moc douho pryc
 	 * , bylo by vhodne generovat alespon jednoho s nejnizsim zastoupenim
@@ -37,11 +49,37 @@ public class Simulace {
 	 * budem muset jeste pridat volbu ze ktereho skladu bude pozadavek vyrizen
 	 * 
 	 */
+
+	public static int nejblizsiSklad(int indexOazy) {
+		if (indexOazy == 2) {
+			//System.out.println("aaaa");
+		}
+		double nejkratsiCesta = Double.MAX_VALUE;
+		int indexNejblizsiSklad = -1;
+		for(int i = 0; i < sklady.size(); i++) {
+			for(int j = 0; j < cesty.size(); j++) {
+				if(cesty.get(j).misto1 instanceof Sklad) {
+					if(cesty.get(j).misto2 instanceof Oaza && cesty.get(j).misto2.equals(oazy.get(indexOazy-1))) {
+						if(nejkratsiCesta > cesty.get(j).vzdalenost) {
+							nejkratsiCesta = cesty.get(j).vzdalenost;
+							indexNejblizsiSklad = i;
+						}
+					}
+				}
+				if(cesty.get(j).misto1 instanceof Oaza && cesty.get(j).misto1.equals(oazy.get(indexOazy-1))) {
+					if(cesty.get(j).misto2 instanceof Sklad) {
+						if(nejkratsiCesta > cesty.get(j).vzdalenost) {
+							nejkratsiCesta = cesty.get(j).vzdalenost;
+							indexNejblizsiSklad = i;
+						}
+					}
+				}
+			}
+		}
+		return indexNejblizsiSklad;
+	}
 	public static void spustSimulaci() {
 
-
-
-		// v tomhle whliu se vezme jeden velbloud a zada se mu jeden pozadavek
 		int pocetVyrizenychKosu = 0;
 		int pocetObslouzenychPozadavku = 0;
 		boolean simulaceBezi = true;
@@ -52,31 +90,33 @@ public class Simulace {
 			}
 			int indexPozadavku = 0;
 			while(pozadavkyTed.size() > indexPozadavku && simulaceBezi) {
-
-//				Pozadavek pozadavek = null;
-//				Velbloud velbloud = null;
-//				Sklad sklad = null;
 				//beru ty pozadavky co maji aktualni cas simulace
-
-				//sem chci dat serazeni pozadavku aby se bral jako prvni ten s nejnizsim casem na splneni
-				//tady bude hledani nejblizsiho skladu z te oazy sklad = pozadavek.oaza.getNejblizsiSklad()
-				if(sklady.get(0).velbloudi.size() == 0) {
-					sklady.get(0).generujVelbloudy(oazy);
+				
+				Sklad nejblizsiSklad = entityGraphMap.getSkladToOaza(oazy.get(pozadavkyTed.get(indexPozadavku).op-1));
+				if(nejblizsiSklad == null) {
+					System.out.println("Cas: "+casSimulace+", nelze obslouzit Oazu: "+ pozadavkyTed.get(indexPozadavku).op +", neexistuje cesta");
+					pozadavkyTed.get(indexPozadavku).vyrizeny = true;
+					indexPozadavku++;
+					continue;
 				}
-				if(sklady.get(0).velbloudi.size() > 0) { //pokud jsou ve skladu nejaci velbloudi, vem toho prvniho
-					for(int i = 0; i < sklady.get(0).velbloudi.size(); i++) {
-						if((sklady.get(0).velbloudi.get(i).zvladneNaklad(pozadavkyTed.get(indexPozadavku)) &&
-								sklady.get(0).velbloudi.get(i).zvladneCestu(pozadavkyTed.get(indexPozadavku),casSimulace)) && 
-								sklady.get(0).velbloudi.get(i).stav == Velbloud.Stav.CEKA) {
-							sklady.get(0).velbloudi.get(i).nakladej(pozadavkyTed.get(indexPozadavku),casSimulace);
+				int indexNejblizsiSklad = nejblizsiSklad.INDEX - 1;
+				if (sklady.get(indexNejblizsiSklad).velbloudi.size() == 0) {
+					sklady.get(indexNejblizsiSklad).generujVelbloudy(oazy, entityGraphMap);
+				}				
+				if(sklady.get(indexNejblizsiSklad).velbloudi.size() > 0) { //pokud jsou ve skladu nejaci velbloudi, vem toho prvniho
+					for(int i = 0; i < sklady.get(indexNejblizsiSklad).velbloudi.size(); i++) {
+						if((sklady.get(indexNejblizsiSklad).velbloudi.get(i).zvladneNaklad(pozadavkyTed.get(indexPozadavku)) &&
+								sklady.get(indexNejblizsiSklad).velbloudi.get(i).zvladneCestu(pozadavkyTed.get(indexPozadavku),casSimulace)) &&
+								sklady.get(indexNejblizsiSklad).velbloudi.get(i).stav == Velbloud.Stav.CEKA) {
+							sklady.get(indexNejblizsiSklad).velbloudi.get(i).nakladej(pozadavkyTed.get(indexPozadavku),casSimulace);
 							pozadavkyTed.get(indexPozadavku).vyrizeny = true;
-							
+
 						}
 					}
 				}
 				//nakonec kontrola co se bude se vsema velbloudama dit v dalsim case
-				for(int i = 0; i < sklady.get(0).velbloudi.size(); i++) {
-					sklady.get(0).velbloudi.get(i).zkontrolujSvujStav(casSimulace);
+				for(int i = 0; i < sklady.get(indexNejblizsiSklad).velbloudi.size(); i++) {
+					sklady.get(indexNejblizsiSklad).velbloudi.get(i).zkontrolujSvujStav(casSimulace);
 				}
 				indexPozadavku++;
 			}
@@ -96,7 +136,14 @@ public class Simulace {
 				}
 			}
 			if(jeTamNevyrizeny) {
-				casSimulace++;
+				casSimulace = casSimulace + ZMENA_CASU;
+				//System.out.println("Cas: " + casSimulace);
+				sklady.get(0).doplnSklad(casSimulace);
+				for(int j = 0; j < sklady.size(); j++) {
+					for(int i = 0; i < sklady.get(j).velbloudi.size(); i++) {
+						sklady.get(j).velbloudi.get(i).zkontrolujSvujStav(casSimulace);
+					}
+				}
 			} else {
 				System.out.println("Simulace skoncila uspesne");
 				break;
@@ -109,9 +156,8 @@ public class Simulace {
 				pocetVyrizenychKosu = pocetVyrizenychKosu + pozadavky.get(i).kp;
 			}
 		}
-		
+
 		System.out.println("Pocet vyrizenych pozadavku: "+pocetObslouzenychPozadavku+", pocet donesenych kosu: "+pocetVyrizenychKosu);
-		//brat pozadavky dokud nejaky budou v listu
 		//nekolik simulaci
 		//na konci kazdeho simulacniho cyklu velbloudy seradit podle napitosti
 
@@ -141,61 +187,87 @@ public class Simulace {
 		pocetSkladu = Integer.parseInt(list.get(pointer));
 		pointer++;
 		for(int i = 1; i < pocetSkladu + 1; i++) {
-			Sklad sklad = new Sklad(Integer.parseInt(list.get(pointer)), Integer.parseInt(list.get(pointer + 1)),
+			Sklad sklad = new Sklad(i, Double.parseDouble(list.get(pointer)), Double.parseDouble(list.get(pointer + 1)),
 					Integer.parseInt(list.get(pointer + 2)), Integer.parseInt(list.get(pointer + 3)), Integer.parseInt(list.get(pointer + 4)), i);
 			sklady.add(sklad);
 			pointer = pointer + 5;
 		}
 		//zkusebni vypis
-		System.out.println("Sklady:");
-		System.out.println(sklady.get(0).vypis());
-		System.out.println("pointer se nachazi na pozici: "+pointer);
+		//		System.out.println("Sklady:");
+		//		System.out.println(sklady.get(0).vypis());
+		//		System.out.println("pointer se nachazi na pozici: "+pointer);
 
 		//--------------------------OAZY--------------------------
 		pocetOaz = Integer.parseInt(list.get(pointer));
 		pointer++;
-		System.out.println("Oazy: ");
+		//System.out.println("Oazy: ");
 		for(int i = 1; i < pocetOaz + 1; i++) {
-			Oaza oaza = new Oaza(Integer.parseInt(list.get(pointer)), Integer.parseInt(list.get(pointer + 1)), pocetOaz, i);
+			Oaza oaza = new Oaza(i + pocetSkladu,Double.parseDouble(list.get(pointer)), Double.parseDouble(list.get(pointer + 1)), pocetOaz, i);
 			oazy.add(oaza);
-			System.out.println(oaza.vypis());
+			//System.out.println(oaza.vypis());
 			pointer = pointer + 2;
 		}
-		System.out.println("pointer se nachazi na pozici: "+pointer);
+		//		System.out.println("pointer se nachazi na pozici: "+pointer);
 
 		//--------------------------CESTY--------------------------
 		pocetVrcholu = pocetOaz + pocetSkladu;
 		pocetCest = Integer.parseInt(list.get(pointer));
 		pointer++;
+		int pocetVseho = pocetSkladu + pocetOaz;
 		for(int i = 1; i < pocetCest + 1; i++) {
-			if(Integer.parseInt(list.get(pointer)) <= pocetSkladu && Integer.parseInt(list.get(pointer + 1)) > pocetSkladu) {
-				Cesta cesta = new Cesta(sklady.get(Integer.parseInt(list.get(pointer)) - 1), oazy.get(Integer.parseInt(list.get(pointer + 1)) - pocetSkladu - 1));
+			try {
+		//	if(Integer.parseInt(list.get(pointer)) <= pocetVseho && Integer.parseInt(list.get(pointer + 1)) > pocetSkladu) {
+				Oaza oaza1 = null;
+				Oaza oaza2 = null;
+				Sklad sklad1 = null;
+				Sklad sklad2 = null;
+				if(sklady.size() > (Integer.parseInt(list.get(pointer)) - 1)) {
+					sklad1 = sklady.get(Integer.parseInt(list.get(pointer)) - 1);
+				} else {
+					oaza1 = oazy.get(Integer.parseInt(list.get(pointer)) - pocetSkladu - 1);
+				}
+				if(sklady.size() <= (Integer.parseInt(list.get(pointer + 1)) - 1)) {
+					oaza2 = oazy.get(Integer.parseInt(list.get(pointer + 1)) - pocetSkladu - 1);
+				} else {
+					sklad2 = sklady.get(Integer.parseInt(list.get(pointer + 1)) - 1);
+				}
+				Cesta cesta = null;
+				if(sklad1 != null && sklad2 != null) {
+					cesta = new Cesta(sklad1, sklad2);
+				} else if(sklad1 != null && oaza2 != null) {
+					cesta = new Cesta(sklad1, oaza2);
+				} else if(oaza1 != null && oaza2 != null) {
+					cesta = new Cesta(oaza1, oaza2);
+				} else if(oaza1 != null && sklad2 != null){
+					cesta = new Cesta(oaza1, sklad2);
+				}
 				cesty.add(cesta);
 				pointer = pointer + 2;
-				//dodelat zbyle vetve!!!!
-			} 
+			//}
+			} catch (Exception e) {
+				System.out.println("CHyba");
+			} 			
 		}
-		Cesty neco = new Cesty(cesty);
-		neco.vypis();
-		System.out.println("pointer se nachazi na pozici: "+pointer);
+		
+		entityGraphMap = new EntityGraphMap(sklady,oazy,cesty); //vytvoreni grafu cest
 
 		//--------------------------VELBLOUDI--------------------------
 		pocetVelbloudu = Integer.parseInt(list.get(pointer));
 		pointer++;
 		for(int i = 1; i < pocetVelbloudu + 1; i++) {
-			DruhVelblouda druhVelblouda = new DruhVelblouda(list.get(pointer), Double.parseDouble(list.get(pointer + 1)), Double.parseDouble(list.get(pointer + 2)), Integer.parseInt(list.get(pointer + 3)),
-					Integer.parseInt(list.get(pointer + 4)), Integer.parseInt(list.get(pointer + 5)), Integer.parseInt(list.get(pointer + 6)), Double.parseDouble(list.get(pointer + 7)));
+			DruhVelblouda druhVelblouda = new DruhVelblouda(list.get(pointer), Double.parseDouble(list.get(pointer + 1)), Double.parseDouble(list.get(pointer + 2)), Double.parseDouble(list.get(pointer + 3)),
+					Double.parseDouble(list.get(pointer + 4)), Double.parseDouble(list.get(pointer + 5)), Double.parseDouble(list.get(pointer + 6)), Double.parseDouble(list.get(pointer + 7)));
 			druhyVelbloudu.add(druhVelblouda);
 			druhVelblouda.vypis();
 			pointer = pointer + 8;
 		}
-		System.out.println("pointer se nachazi na pozici: "+pointer);
+		//System.out.println("pointer se nachazi na pozici: "+pointer);
 
 		//--------------------------POZADAVKY--------------------------
 		pocetPozadavku = Integer.parseInt(list.get(pointer));
 		pointer++;
 		for(int i = 1; i < pocetPozadavku + 1; i++) {
-			Pozadavek pozadavek = new Pozadavek(Integer.parseInt(list.get(pointer)), Integer.parseInt(list.get(pointer + 1)),
+			Pozadavek pozadavek = new Pozadavek(Double.parseDouble(list.get(pointer)), Integer.parseInt(list.get(pointer + 1)),
 					Integer.parseInt(list.get(pointer + 2)), Integer.parseInt(list.get(pointer + 3)), i);
 			pozadavky.add(pozadavek);
 			pozadavek.vypis();
@@ -208,21 +280,23 @@ public class Simulace {
 	public static ArrayList<String> toStringList(ArrayList<Character> list)  {
 		ArrayList<String> prevedeny = new ArrayList<String>();
 
-		for(int i = 0; i < list.size(); i++) {
+		int i = 0;
+		while(list.size() > i) {
 
-			if(list.get(i) != ' ') {
+			if(!Character.isWhitespace(list.get(i)) && list.get(i) != ' ' && !Character.isSpaceChar(list.get(i))) {
 
 				StringBuilder sb = new StringBuilder();
-				while(list.get(i) != ' ') {
+				while((list.size() > i) && (!(Character.isWhitespace(list.get(i)) || list.get(i) == ' ' || Character.isSpaceChar(list.get(i))))) {
 
 					sb.append(list.get(i));
 					i++;
 				}
 
 				prevedeny.add(sb.toString());
-
 			}
+			i++;
 		}
 		return prevedeny;
-	}
+	}	
+	
 }

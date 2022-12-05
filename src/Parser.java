@@ -39,24 +39,47 @@ public class Parser {
 		
 		parsed = odstranKomentare(znaky);
 		
-//		for(int i = 0; i < parsed.size(); i++) {
-//		System.out.print(parsed.get(i));
-//	}
-		
 		return parsed;
 		
 		
 		}
 	public static ArrayList<Character> odstranKomentare(ArrayList<Character> list) {
-		for(int i = 0; i < list.size(); i++) {
-			if(list.get(i) == v1 && list.get(i + 1) == v2) {
-				do {
-					list.remove(i);
-					odstranKomentare(list);
-				} while ((list.get(i) != p1 && list.get(i + 1) != p2));
+		int indexp = 0;
+		int indexk = 0;
+		int pocetVelbloudu = 0;
+		int pocetPousti = 0;
+	if(list.size() > 2) {
+		for (int i = 0; i < list.size() - 1; i++) {
+			if (list.get(i) == v1 && list.get(i + 1) == v2) {
+				pocetVelbloudu++;
+				if(indexp == 0) indexp = i;
+			}
+			if (list.get(i) == p1 && list.get(i + 1) == p2) {
+				pocetPousti++;
+				indexk = i;
+			}
+			if (pocetPousti == pocetVelbloudu && pocetVelbloudu > 0) {
+				try {
+					list.subList(indexp, indexk + 2).clear();
+					list.add(indexp,' ');
+
+				} catch (Exception e ) {
+					System.out.println("Chyba");
+				}
+				list = odstranKomentare(list);
+				break;
 			}
 		}
-		return odstranPouste(list);
+	}
+		return list;
+//		for(int i = 0; i < list.size(); i++) {
+//			if(list.get(i) == v1 && list.get(i + 1) == v2) {
+//				do {
+//					list.remove(i);
+//					odstranKomentare(list);
+//				} while ((list.get(i) != p1 && list.get(i + 1) != p2));
+//			}
+//		}
 	}
 	
 	public static ArrayList<Character> odstranPouste(ArrayList<Character> list) {

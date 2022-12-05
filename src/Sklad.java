@@ -1,17 +1,18 @@
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 
-public class Sklad {
-	int xs,ys,ts,ks,tn,cs;
+public class Sklad extends Misto{
+//	double xs,ys;
+	int ts,ks,tn,cs;
 	ArrayList<Velbloud> velbloudi = new ArrayList<Velbloud>();
 	//nejakje parametr jak dlouho uz jsou velbloudi ptyc
 	int pocetKosu = ks;
 	private static int pocet = 0;
 	public final int INDEX = ++pocet;
-	public Sklad(int xs,int ys,int ks,int ts,int tn,int cs) {
-		this.xs = xs;
-		this.ys = ys;
+	public Sklad(int ID, double xs,double ys,int ks,int ts,int tn,int cs) {
+		super(ID ,xs, ys);
 		this.ts = ts;
 		this.ks = ks;
 		this.tn = tn;
@@ -20,9 +21,16 @@ public class Sklad {
 	}
 	
 	public String vypis() {
-		String vypis = "souradnice: ["+xs+","+ys+"], pocet kosu: "+ks+", doba doplneni: "+ts+", doba nalozeni: "+tn+", sklad cislo: "+cs;
+		String vypis = "souradnice: ["+sx+","+sy+"], pocet kosu: "+ks+", doba doplneni: "+ts+", doba nalozeni: "+tn+", sklad cislo: "+cs;
 		return vypis;
 	}
+
+	public void doplnSklad(double casSimulace) {
+		if(casSimulace > 0 && Math.abs(casSimulace % ts) < Simulace.EPSILON) {
+			pocetKosu = pocetKosu + ts;
+		}
+	}
+
 	
 	/*
 	 * pokud ma sklad dostatek kosu na splneni pozadavku, nalozi je na predaneho velblouda a snizi si zustatek a vrati 1
@@ -39,7 +47,7 @@ public class Sklad {
 		}
 	}
 	
-	public void generujVelbloudy(ArrayList<Oaza> oazy) {
+	public void generujVelbloudy(List<Oaza> oazy, EntityGraphMap entityGraphMap) {
 		double nejmensiZastoupeni = 2.0; //protoze to bude vzdycky desetinne cislo
 		
 		/*
@@ -63,53 +71,52 @@ public class Sklad {
 		}
 		ArrayList<Double> pocetGenerovanych = new ArrayList<Double>();
 		for(int i = 0; i < Simulace.druhyVelbloudu.size(); i++) {
-			pocetGenerovanych.add(Simulace.druhyVelbloudu.get(i).pd * 10 * pocetNasobeni);
+			pocetGenerovanych.add(Simulace.druhyVelbloudu.get(i).pd * Math.pow(10, pocetNasobeni));
+		}
+		long[] pole = new long[pocetGenerovanych.size()];
+		for(int i = 0; i < pole.length; i++) {
+			pole[i] = Double.valueOf(pocetGenerovanych.get(i)).longValue();
 		}
 		
 		//je funkcni zatim jen pro  2 druhy, musime dodelat
-		double delitel = nejmensiSpolecnyDelitel(pocetGenerovanych.get(0), pocetGenerovanych.get(1));
+		double delitel = gcd(pole);
 		
 		
 		for(int i = 0; i < pocetGenerovanych.size(); i++) {
 			int pocetVelbloudu = (int) (pocetGenerovanych.get(i) / delitel);
 			for(int j = 0; j < pocetVelbloudu; j++) {
-				Velbloud velbloud = new Velbloud(this, Simulace.druhyVelbloudu.get(i), oazy);
+				Velbloud velbloud = new Velbloud(this, Simulace.druhyVelbloudu.get(i), oazy, entityGraphMap);
 				this.velbloudi.add(velbloud);
 			}
 		}
 		
 		
 	}
-	
-	static double nejmensiSpolecnyDelitel(double a, double b)
-    {
-        if (a == 0)
-            return b;
-        
-        
-        return nejmensiSpolecnyDelitel(b % a, a);
-    }
-    // method to calculate all common divisors
-    // of two given numbers
-    // a, b --> input integer numbers
-    static double spolecnyDelitel(double a, double b)
-    {
-        // find gcd of a, b
-        double n = nejmensiSpolecnyDelitel(a, b);
- 
-        // Count divisors of n.
-        double result = 0;
-        for (int i = 1; i <= Math.sqrt(n); i++) {
-            // if 'i' is factor of n
-            if (n % i == 0) {
-                // check if divisors are equal
-                if (n / i == i)
-                    result += 1;
-                else
-                    result += 2;
-            }
-        }
-        return result;
-    }
+
+	private static long gcd(long a, long b)
+	{
+		while (b > 0)
+		{
+			long temp = b;
+			b = a % b; // % is remainder
+			a = temp;
+		}
+		return a;
+	}
+
+	private static long gcd(long[] input)
+	{
+		long result = input[0];
+		for(int i = 1; i < input.length; i++) result = gcd(result, input[i]);
+		return result;
+	}
 	//gettery nejaky na velbloudy a generator velbloudu, pokud tam nejsou, tak nejaky vygenerovat
+
+	@Override
+	public String toString() {
+		return "Sklad [ts=" + ts + ", ks=" + ks + ", tn=" + tn + ", cs=" + cs + ", velbloudi=" + velbloudi
+				+ ", pocetKosu=" + pocetKosu + ", INDEX=" + INDEX + ", sx=" + sx + ", sy=" + sy + ", ID=" + ID + "]";
+	}
+	
+	
 }

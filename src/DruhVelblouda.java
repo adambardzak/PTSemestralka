@@ -2,10 +2,10 @@
  * konstruktor druhu velblouda
  */
 public class DruhVelblouda {
-	int dmin, dmax, td, kd;
+	double dmin, dmax, td, kd;
 	double vmin, vmax, pd;
 	String jmeno;
-	public DruhVelblouda(String jmeno,double vmin, double vmax, int dmin,int dmax,int td,int kd,double pd) {
+	public DruhVelblouda(String jmeno,double vmin, double vmax, double dmin,double dmax,double td,double kd,double pd) {
 		this.jmeno = jmeno;
 		this.vmin = vmin; //minimalni rychlost - rychlost bude konstantni a bude generovana pomoci rovnomerneho rozdeleni
 		this.vmax = vmax; //maximalni rychlost
@@ -19,5 +19,13 @@ public class DruhVelblouda {
 	public void vypis() {
 		System.out.println("Druh: "+jmeno+", min rychlost: "+vmin+", max rychlost: "+vmax+", min vzdalenost: "+dmin+", max vzdalenost: "+dmax);
 	}
+
+	@Override
+	public String toString() {
+		return "DruhVelblouda [dmin=" + dmin + ", dmax=" + dmax + ", td=" + td + ", kd=" + kd + ", vmin=" + vmin
+				+ ", vmax=" + vmax + ", pd=" + pd + ", jmeno=" + jmeno + "]";
+	}
+	
+	
 	
 }

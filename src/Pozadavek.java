@@ -1,8 +1,9 @@
 public class Pozadavek implements Comparable<Pozadavek>{
-	int tz, op, kp, tp, poradi;
+	double tz;
+	int op, kp, tp, poradi;
 	boolean vyrizeny = false;
 	
-	public Pozadavek(int tz, int op,int kp,int tp, int poradi) {
+	public Pozadavek(double tz, int op,int kp,int tp, int poradi) {
 		this.tz = tz; //cas prichodu pozadavku
 		this.op = op; //index oazy kam ma byt pozadavek dorucen
 		this.kp = kp; //mnozstvi pozadovanych kosu
@@ -19,8 +20,15 @@ public class Pozadavek implements Comparable<Pozadavek>{
 		// TODO Auto-generated method stub
 		return 0;
 	}
+
+	@Override
+	public String toString() {
+		return "Pozadavek [tz=" + tz + ", op=" + op + ", kp=" + kp + ", tp=" + tp + ", poradi=" + poradi + ", vyrizeny="
+				+ vyrizeny + "]";
+	}
 	
-	//sorted listx s pozadavky serazenymi podle neceho
 	//pridavat pozadavky do fronty rovnou serazeny
+	
+	
 
 }

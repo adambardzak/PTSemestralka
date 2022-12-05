@@ -1,26 +1,20 @@
 
 
 public class Cesta {
-	Sklad sklad, sklad1;
-	Oaza oaza, oaza1;
+	Misto misto1, misto2;
 	double vzdalenost;
 	
-	public Cesta(Sklad sklad, Oaza oaza) {
-		this.oaza = oaza;
-		this.sklad = sklad;
-		vzdalenost = Math.sqrt(Math.pow((oaza.xo - sklad.xs), 2) + Math.pow((oaza.yo - sklad.ys), 2));
+	public Cesta(Misto misto1, Misto misto2) {
+		this.misto1 = misto1;
+		this.misto2 = misto2;
+		vzdalenost = Math.sqrt(Math.pow((misto1.sx - misto2.sx), 2) + Math.pow((misto1.sy - misto2.sy), 2));
+	}
+
+	@Override
+	public String toString() {
+		return "Cesta [misto1=" + misto1 + ", misto2=" + misto2 + ", vzdalenost=" + vzdalenost + "]";
 	}
 	
-	public Cesta(Oaza oaza, Oaza oaza1, int vzdalenost) {
-		this.oaza = oaza;
-		this.oaza1 = oaza1;
-		//doplnit vypocet vzdalenosti
-	}
 	
-	public Cesta(Sklad sklad, Sklad sklad1, int vzdalenost) {
-		this.sklad = sklad;
-		this.sklad1 = sklad1;
-		//doplnit vzdalenost
-	}
 	
 }
